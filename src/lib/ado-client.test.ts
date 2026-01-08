@@ -154,6 +154,87 @@ describe('AdoClient', () => {
     });
   });
 
+  describe('getBuildById', () => {
+    it('should fetch build by ID and return build details', async () => {
+      const mockBuild = {
+        id: 123,
+        buildNumber: 'Pipeline - 86951',
+        definition: { name: 'Test Pipeline' },
+        status: 'completed',
+        result: 'succeeded',
+      };
+
+      ((globalThis as any).fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockBuild,
+      });
+
+      const result = await client.getBuildById(
+        'https://dev.azure.com/org',
+        'project',
+        123,
+        'pat123'
+      );
+
+      expect(result).toEqual({
+        id: 123,
+        buildNumber: 'Pipeline - 86951',
+        name: 'Test Pipeline',
+        url: 'https://dev.azure.com/org/project/_build/results?buildId=123',
+        status: 'completed',
+        result: 'succeeded',
+      });
+    });
+
+    it('should return null when build not found (404)', async () => {
+      ((globalThis as any).fetch as any).mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      });
+
+      const result = await client.getBuildById(
+        'https://dev.azure.com/org',
+        'project',
+        123,
+        'pat123'
+      );
+
+      expect(result).toBeNull();
+    });
+
+    it('should handle 401 authentication error', async () => {
+      ((globalThis as any).fetch as any).mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+      });
+
+      await expect(
+        client.getBuildById(
+          'https://dev.azure.com/org',
+          'project',
+          123,
+          'invalid-pat'
+        )
+      ).rejects.toThrow('Authentication failed');
+    });
+
+    it('should handle 429 rate limit error', async () => {
+      ((globalThis as any).fetch as any).mockResolvedValueOnce({
+        ok: false,
+        status: 429,
+      });
+
+      await expect(
+        client.getBuildById(
+          'https://dev.azure.com/org',
+          'project',
+          123,
+          'pat123'
+        )
+      ).rejects.toThrow('rate limit exceeded');
+    });
+  });
+
   describe('Base64 encoding', () => {
     it('should correctly encode PAT for Basic auth', async () => {
       const mockBuilds = { value: [] };

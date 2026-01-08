@@ -8,8 +8,14 @@
     "default_title": "ADO Build Tracker"
   },
   "permissions": [
-    "storage"
+    "storage",
+    "alarms",
+    "notifications"
   ],
+  "background": {
+    "service_worker": "src/background.ts",
+    "type": "module"
+  },
   "host_permissions": [
     "https://dev.azure.com/*",
     "https://*.visualstudio.com/*"

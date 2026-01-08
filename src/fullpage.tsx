@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { ConfigForm } from './components/ConfigForm';
 import { BuildResults } from './components/BuildResults';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { TrackingTab } from './components/TrackingTab';
+import { TrackingHistory } from './components/TrackingHistory';
+import { SettingsTab } from './components/SettingsTab';
 import { AdoClient } from './lib/ado-client';
 import { Build, Artifact } from './types/ado';
 import './index.css';
@@ -14,7 +17,10 @@ interface StageResult {
   loadingArtifacts?: boolean;
 }
 
+type TabType = 'search' | 'tracking' | 'history' | 'settings';
+
 function FullPage() {
+  const [activeTab, setActiveTab] = useState<TabType>('tracking');
   const [stages, setStages] = useState<StageResult[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -108,28 +114,79 @@ function FullPage() {
       <div className="space-y-3">
         <h1 className="text-3xl font-bold">ADO Build Tracker</h1>
         <p className="text-muted-foreground">
-          Search for builds across multiple Azure DevOps pipelines and download artifacts
+          Track builds and search artifacts
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1">
-          <ConfigForm onSubmit={handleSearch} loading={loading} />
-        </div>
-
-        <div className="lg:col-span-2">
-          {stages.length > 0 ? (
-            <div className="space-y-3">
-              <h2 className="text-xl font-semibold">Results</h2>
-              <BuildResults stages={stages} loading={loading} />
-            </div>
-          ) : (
-            <div className="flex items-center justify-center h-full text-muted-foreground">
-              <p>Enter search criteria and click "Search Builds" to see results</p>
-            </div>
-          )}
-        </div>
+      <div className="flex gap-2 border-b">
+        <button
+          onClick={() => setActiveTab('tracking')}
+          className={`pb-2 px-4 text-sm font-medium transition-colors ${
+            activeTab === 'tracking'
+              ? 'border-b-2 border-primary text-primary'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Tracking
+        </button>
+        <button
+          onClick={() => setActiveTab('search')}
+          className={`pb-2 px-4 text-sm font-medium transition-colors ${
+            activeTab === 'search'
+              ? 'border-b-2 border-primary text-primary'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Search
+        </button>
+        <button
+          onClick={() => setActiveTab('history')}
+          className={`pb-2 px-4 text-sm font-medium transition-colors ${
+            activeTab === 'history'
+              ? 'border-b-2 border-primary text-primary'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          History
+        </button>
+        <button
+          onClick={() => setActiveTab('settings')}
+          className={`pb-2 px-4 text-sm font-medium transition-colors ${
+            activeTab === 'settings'
+              ? 'border-b-2 border-primary text-primary'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Settings
+        </button>
       </div>
+
+      {activeTab === 'tracking' ? (
+        <TrackingTab />
+      ) : activeTab === 'history' ? (
+        <TrackingHistory />
+      ) : activeTab === 'settings' ? (
+        <SettingsTab />
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-1">
+            <ConfigForm onSubmit={handleSearch} loading={loading} />
+          </div>
+
+          <div className="lg:col-span-2">
+            {stages.length > 0 ? (
+              <div className="space-y-3">
+                <h2 className="text-xl font-semibold">Results</h2>
+                <BuildResults stages={stages} loading={loading} />
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-full text-muted-foreground">
+                <p>Enter search criteria and click "Search Builds" to see results</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

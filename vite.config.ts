@@ -19,6 +19,15 @@ export default defineConfig({
       input: {
         popup: 'popup.html',
         fullpage: 'fullpage.html',
+        background: 'src/background.ts',
+      },
+      output: {
+        entryFileNames: (chunkInfo) => {
+          if (chunkInfo.name === 'background') {
+            return '[name].js';
+          }
+          return 'assets/[name]-[hash].js';
+        },
       },
     },
   },

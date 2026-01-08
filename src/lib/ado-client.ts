@@ -122,4 +122,51 @@ export class AdoClient {
       return [];
     }
   }
+
+  async getBuildById(
+    orgUrl: string,
+    project: string,
+    buildId: number,
+    pat: string
+  ): Promise<Build | null> {
+    try {
+      this.validateUrl(orgUrl);
+      const cleanOrgUrl = orgUrl.replace(/\/$/, '');
+      const apiUrl = `${cleanOrgUrl}/${project}/_apis/build/builds/${buildId}?api-version=7.2-preview.8`;
+
+      const response = await fetch(apiUrl, {
+        headers: {
+          'Authorization': `Basic ${this.encodeAuth(pat)}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          throw new Error('Authentication failed. Check your PAT token.');
+        } else if (response.status === 404) {
+          return null;
+        } else if (response.status === 429) {
+          throw new Error('Azure DevOps rate limit exceeded. Please wait and try again.');
+        }
+        throw new Error(`API call failed: ${response.status}`);
+      }
+
+      const build = await response.json();
+      return {
+        id: build.id,
+        buildNumber: build.buildNumber,
+        name: build.definition?.name,
+        url: `${cleanOrgUrl}/${project}/_build/results?buildId=${build.id}`,
+        status: build.status,
+        result: build.result,
+      };
+    } catch (error) {
+      console.error('Error fetching build by ID:', error);
+      if (error instanceof Error) {
+        throw error;
+      }
+      return null;
+    }
+  }
 }
