@@ -35,6 +35,14 @@ export function BuildResults({ stages, loading }: BuildResultsProps) {
     return 'bg-gray-500/10 text-gray-700 border-gray-500/20';
   };
 
+  const getResultColor = (result: string) => {
+    if (result === 'succeeded') return 'bg-green-500/10 text-green-700 border-green-500/20';
+    if (result === 'partiallySucceeded') return 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20';
+    if (result === 'failed') return 'bg-red-500/10 text-red-700 border-red-500/20';
+    if (result === 'canceled') return 'bg-gray-500/10 text-gray-700 border-gray-500/20';
+    return 'bg-gray-500/10 text-gray-700 border-gray-500/20';
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -72,7 +80,18 @@ export function BuildResults({ stages, loading }: BuildResultsProps) {
                     >
                       {stage.build.buildNumber}
                     </a>
-                    <Badge className={getStatusColor(stage.build.status)}>{stage.build.status}</Badge>
+                  </div>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-medium text-muted-foreground">Status:</span>
+                      <Badge className={getStatusColor(stage.build.status)}>{stage.build.status}</Badge>
+                    </div>
+                    {stage.build.result && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-muted-foreground">Result:</span>
+                        <Badge className={getResultColor(stage.build.result)}>{stage.build.result}</Badge>
+                      </div>
+                    )}
                   </div>
                   {stage.build.name && (
                     <div className="text-sm text-muted-foreground">

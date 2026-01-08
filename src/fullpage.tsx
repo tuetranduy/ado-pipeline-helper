@@ -4,7 +4,6 @@ import { BuildResults } from './components/BuildResults';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { AdoClient } from './lib/ado-client';
 import { Build, Artifact } from './types/ado';
-import { PIPELINE_IDS } from './lib/constants';
 import './index.css';
 
 interface StageResult {
@@ -24,16 +23,17 @@ function FullPage() {
     project: string;
     pat: string;
     buildId: string;
+    pipelineIds: { stage1: string; stage2: string; stage3: string };
   }) => {
     setLoading(true);
     setStages([]);
 
     const client = new AdoClient();
     const pipelines = [
-      { id: PIPELINE_IDS.STAGE_1, name: 'Stage 1', stage: 1, buildTypeFilter: null },
-      { id: PIPELINE_IDS.STAGE_2, name: 'Stage 2 - NB', stage: 2, buildTypeFilter: ' - NB - ' },
-      { id: PIPELINE_IDS.STAGE_3, name: 'Stage 3', stage: 3, buildTypeFilter: null },
-      { id: PIPELINE_IDS.STAGE_2, name: 'Stage 2 - MTA', stage: 2, buildTypeFilter: ' - MTA&Cancellation - ' },
+      { id: config.pipelineIds.stage1, name: 'Stage 1', stage: 1, buildTypeFilter: null },
+      { id: config.pipelineIds.stage2, name: 'Stage 2 - NB', stage: 2, buildTypeFilter: ' - NB - ' },
+      { id: config.pipelineIds.stage3, name: 'Stage 3', stage: 3, buildTypeFilter: null },
+      { id: config.pipelineIds.stage2, name: 'Stage 2 - MTA', stage: 2, buildTypeFilter: ' - MTA&Cancellation - ' },
     ];
 
     const buildResults = await Promise.all(

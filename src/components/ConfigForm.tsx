@@ -3,9 +3,10 @@ import { Label } from './ui/label';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { PipelineConfig } from '../types/ado';
+import { PIPELINE_IDS } from '../lib/constants';
 
 interface ConfigFormProps {
-  onSubmit: (config: PipelineConfig & { buildId: string }) => void;
+  onSubmit: (config: PipelineConfig & { buildId: string; pipelineIds: { stage1: string; stage2: string; stage3: string } }) => void;
   loading: boolean;
 }
 
@@ -14,6 +15,9 @@ export function ConfigForm({ onSubmit, loading }: ConfigFormProps) {
   const [project, setProject] = useState('');
   const [pat, setPat] = useState('');
   const [buildId, setBuildId] = useState('');
+  const [pipelineStage1, setPipelineStage1] = useState<string>(PIPELINE_IDS.STAGE_1);
+  const [pipelineStage2, setPipelineStage2] = useState<string>(PIPELINE_IDS.STAGE_2);
+  const [pipelineStage3, setPipelineStage3] = useState<string>(PIPELINE_IDS.STAGE_3);
 
   const timersRef = useRef<{ [key: string]: NodeJS.Timeout }>({});
 
@@ -62,6 +66,11 @@ export function ConfigForm({ onSubmit, loading }: ConfigFormProps) {
       project,
       pat,
       buildId,
+      pipelineIds: {
+        stage1: pipelineStage1,
+        stage2: pipelineStage2,
+        stage3: pipelineStage3,
+      },
     });
   };
 
@@ -126,8 +135,60 @@ export function ConfigForm({ onSubmit, loading }: ConfigFormProps) {
       </div>
 
       <div className="space-y-3 pt-2 border-t">
+        <h3 className="font-semibold text-sm">Pipeline IDs</h3>
+
+        <div className="space-y-2">
+          <Label htmlFor="pipelineStage1">Stage 1 Pipeline ID</Label>
+          <Input
+            id="pipelineStage1"
+            type="text"
+            placeholder="747"
+            value={pipelineStage1}
+            onChange={(e) => {
+              const value = e.target.value;
+              setPipelineStage1(value);
+              handleDebouncedSave('pipelineStage1', value);
+            }}
+            disabled={loading}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="pipelineStage2">Stage 2 Pipeline ID</Label>
+          <Input
+            id="pipelineStage2"
+            type="text"
+            placeholder="712"
+            value={pipelineStage2}
+            onChange={(e) => {
+              const value = e.target.value;
+              setPipelineStage2(value);
+              handleDebouncedSave('pipelineStage2', value);
+            }}
+            disabled={loading}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="pipelineStage3">Stage 3 Pipeline ID</Label>
+          <Input
+            id="pipelineStage3"
+            type="text"
+            placeholder="1172"
+            value={pipelineStage3}
+            onChange={(e) => {
+              const value = e.target.value;
+              setPipelineStage3(value);
+              handleDebouncedSave('pipelineStage3', value);
+            }}
+            disabled={loading}
+          />
+        </div>
+      </div>
+
+      <div className="space-y-3 pt-2 border-t">
         <h3 className="font-semibold text-sm">Query</h3>
-        
+
         <div className="space-y-2">
           <Label htmlFor="buildId">Build ID</Label>
           <Input
