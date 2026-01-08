@@ -1,6 +1,6 @@
 {
   "name": "ado-pipeline-helper",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Chrome extension to track Azure DevOps pipeline builds and artifacts",
   "type": "module",
   "scripts": {

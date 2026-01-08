@@ -4,6 +4,7 @@ export interface Build {
   name?: string;
   url: string;
   status: string;
+  result?: string;
 }
 
 export interface Artifact {

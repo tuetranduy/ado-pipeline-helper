@@ -15,15 +15,6 @@ interface StageResult {
   loadingArtifacts?: boolean;
 }
 
-type BuildType = 'NB' | 'MTA' | 'Other';
-
-function classifyStage2Build(build: Build | null): BuildType {
-  if (!build) return 'Other';
-  if (build.buildNumber.includes(' - NB - ')) return 'NB';
-  if (build.buildNumber.includes(' - MTA&Cancellation - ')) return 'MTA';
-  return 'Other';
-}
-
 function FullPage() {
   const [stages, setStages] = useState<StageResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -39,9 +30,10 @@ function FullPage() {
 
     const client = new AdoClient();
     const pipelines = [
-      { id: PIPELINE_IDS.STAGE_1, name: 'Stage 1', stage: 1 },
-      { id: PIPELINE_IDS.STAGE_2, name: 'Stage 2', stage: 2 },
-      { id: PIPELINE_IDS.STAGE_3, name: 'Stage 3', stage: 3 },
+      { id: PIPELINE_IDS.STAGE_1, name: 'Stage 1', stage: 1, buildTypeFilter: null },
+      { id: PIPELINE_IDS.STAGE_2, name: 'Stage 2 - NB', stage: 2, buildTypeFilter: ' - NB - ' },
+      { id: PIPELINE_IDS.STAGE_3, name: 'Stage 3', stage: 3, buildTypeFilter: null },
+      { id: PIPELINE_IDS.STAGE_2, name: 'Stage 2 - MTA', stage: 2, buildTypeFilter: ' - MTA&Cancellation - ' },
     ];
 
     const buildResults = await Promise.all(
@@ -52,7 +44,8 @@ function FullPage() {
             config.project,
             pipeline.id,
             config.buildId,
-            config.pat
+            config.pat,
+            pipeline.buildTypeFilter
           );
 
           return {
@@ -74,17 +67,7 @@ function FullPage() {
       })
     );
 
-    // Expand Stage 2 into NB/MTA/Other
-    const expandedResults = buildResults.flatMap((result) => {
-      if (result.stageNum === 2 && result.build) {
-        const buildType = classifyStage2Build(result.build);
-        return [{
-          ...result,
-          stage: `Stage 2 - ${buildType}`,
-        }];
-      }
-      return [result];
-    });
+    const expandedResults = buildResults;
 
     setStages(expandedResults);
     setLoading(false);

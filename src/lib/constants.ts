@@ -1,5 +1,5 @@
 export const PIPELINE_IDS = {
-  STAGE_1: '', // TODO: Replace with actual pipeline ID
-  STAGE_2: '', // TODO: Replace with actual pipeline ID
-  STAGE_3: '', // TODO: Replace with actual pipeline ID
+  STAGE_1: '747',
+  STAGE_2: '712',
+  STAGE_3: '1172',
 } as const;

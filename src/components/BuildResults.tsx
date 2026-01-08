@@ -19,6 +19,22 @@ interface BuildResultsProps {
 }
 
 export function BuildResults({ stages, loading }: BuildResultsProps) {
+  const getStageColor = (stageName: string) => {
+    if (stageName.includes('Stage 1')) return 'border-l-4 border-l-blue-500';
+    if (stageName.includes('Stage 2 - NB')) return 'border-l-4 border-l-green-500';
+    if (stageName.includes('Stage 3')) return 'border-l-4 border-l-purple-500';
+    if (stageName.includes('Stage 2 - MTA')) return 'border-l-4 border-l-orange-500';
+    return '';
+  };
+
+  const getStatusColor = (status: string) => {
+    if (status === 'completed') return 'bg-green-500/10 text-green-700 border-green-500/20';
+    if (status === 'inProgress') return 'bg-blue-500/10 text-blue-700 border-blue-500/20';
+    if (status === 'cancelling') return 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20';
+    if (status === 'failed') return 'bg-red-500/10 text-red-700 border-red-500/20';
+    return 'bg-gray-500/10 text-gray-700 border-gray-500/20';
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -34,9 +50,9 @@ export function BuildResults({ stages, loading }: BuildResultsProps) {
   return (
     <div className="space-y-4">
       {stages.map((stage, index) => (
-        <Card key={index}>
-          <CardHeader>
-            <CardTitle className="text-base">{stage.stage}</CardTitle>
+        <Card key={index} className={getStageColor(stage.stage)}>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold">{stage.stage}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {stage.error ? (
@@ -46,17 +62,17 @@ export function BuildResults({ stages, loading }: BuildResultsProps) {
             ) : stage.build ? (
               <>
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-sm font-medium">Build Number:</span>
                     <a
                       href={stage.build.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-primary hover:underline"
+                      className="text-sm text-blue-600 hover:text-blue-800 hover:underline font-medium"
                     >
                       {stage.build.buildNumber}
                     </a>
-                    <Badge variant="secondary">{stage.build.status}</Badge>
+                    <Badge className={getStatusColor(stage.build.status)}>{stage.build.status}</Badge>
                   </div>
                   {stage.build.name && (
                     <div className="text-sm text-muted-foreground">
@@ -65,7 +81,7 @@ export function BuildResults({ stages, loading }: BuildResultsProps) {
                   )}
                 </div>
 
-                <div className="space-y-2 pt-2">
+                <div className="space-y-2 pt-2 border-t">
                   <span className="text-sm font-medium">Artifacts:</span>
                   {stage.loadingArtifacts ? (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -80,9 +96,9 @@ export function BuildResults({ stages, loading }: BuildResultsProps) {
                             href={artifact.resource.downloadUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm text-primary hover:underline"
+                            className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
                           >
-                            {artifact.name}
+                            📦 {artifact.name}
                           </a>
                         </li>
                       ))}

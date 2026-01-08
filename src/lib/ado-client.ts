@@ -24,13 +24,14 @@ export class AdoClient {
     project: string,
     pipelineId: string,
     buildId: string,
-    pat: string
+    pat: string,
+    buildTypeFilter?: string | null
   ): Promise<Build | null> {
     try {
       this.validateUrl(orgUrl);
       const cleanOrgUrl = orgUrl.replace(/\/$/, '');
-      const apiUrl = `${cleanOrgUrl}/${project}/_apis/build/builds?definitions=${pipelineId}&api-version=7.0&$top=50`;
-      
+      const apiUrl = `${cleanOrgUrl}/${project}/_apis/build/builds?definitions=${pipelineId}&api-version=7.2-preview.8&statusFilter=all`;
+
       const response = await fetch(apiUrl, {
         headers: {
           'Authorization': `Basic ${this.encodeAuth(pat)}`,
@@ -57,15 +58,20 @@ export class AdoClient {
       const searchId = match ? match[1] : buildId;
 
       // Match builds where the final numeric segment equals the search ID
+      // Return the most recent match (builds are typically sorted by date descending)
       for (const build of builds) {
         const buildMatch = build.buildNumber.match(buildIdPattern);
         if (buildMatch && buildMatch[1] === searchId) {
+          if (buildTypeFilter && !build.buildNumber.includes(buildTypeFilter)) {
+            continue;
+          }
           return {
             id: build.id,
             buildNumber: build.buildNumber,
             name: build.definition?.name,
             url: `${cleanOrgUrl}/${project}/_build/results?buildId=${build.id}`,
             status: build.status,
+            result: build.result,
           };
         }
       }
@@ -90,7 +96,7 @@ export class AdoClient {
       this.validateUrl(orgUrl);
       const cleanOrgUrl = orgUrl.replace(/\/$/, '');
       const apiUrl = `${cleanOrgUrl}/${project}/_apis/build/builds/${buildId}/artifacts?api-version=7.0`;
-      
+
       const response = await fetch(apiUrl, {
         headers: {
           'Authorization': `Basic ${this.encodeAuth(pat)}`,
