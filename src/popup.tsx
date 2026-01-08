@@ -20,7 +20,7 @@ interface StageResult {
 type TabType = "search" | "tracking" | "history" | "settings";
 
 function Popup() {
-  const [activeTab, setActiveTab] = useState<TabType>("tracking");
+  const [activeTab, setActiveTab] = useState<TabType>("search");
   const [stages, setStages] = useState<StageResult[]>([]);
   const [loading, setLoading] = useState(false);
 
