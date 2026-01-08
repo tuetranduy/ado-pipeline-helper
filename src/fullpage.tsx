@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import { ConfigForm } from './components/ConfigForm';
-import { BuildResults } from './components/BuildResults';
-import { ErrorBoundary } from './components/ErrorBoundary';
-import { TrackingTab } from './components/TrackingTab';
-import { TrackingHistory } from './components/TrackingHistory';
-import { SettingsTab } from './components/SettingsTab';
-import { AdoClient } from './lib/ado-client';
-import { Build, Artifact } from './types/ado';
-import './index.css';
+import { useState } from "react";
+import { ConfigForm } from "./components/ConfigForm";
+import { BuildResults } from "./components/BuildResults";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { TrackingTab } from "./components/TrackingTab";
+import { TrackingHistory } from "./components/TrackingHistory";
+import { SettingsTab } from "./components/SettingsTab";
+import { AdoClient } from "./lib/ado-client";
+import { Build, Artifact } from "./types/ado";
+import "./index.css";
 
 interface StageResult {
   stage: string;
@@ -17,10 +17,10 @@ interface StageResult {
   loadingArtifacts?: boolean;
 }
 
-type TabType = 'search' | 'tracking' | 'history' | 'settings';
+type TabType = "search" | "tracking" | "history" | "settings";
 
 function FullPage() {
-  const [activeTab, setActiveTab] = useState<TabType>('tracking');
+  const [activeTab, setActiveTab] = useState<TabType>("tracking");
   const [stages, setStages] = useState<StageResult[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -36,10 +36,30 @@ function FullPage() {
 
     const client = new AdoClient();
     const pipelines = [
-      { id: config.pipelineIds.stage1, name: 'Stage 1', stage: 1, buildTypeFilter: null },
-      { id: config.pipelineIds.stage2, name: 'Stage 2 - NB', stage: 2, buildTypeFilter: ' - NB - ' },
-      { id: config.pipelineIds.stage3, name: 'Stage 3', stage: 3, buildTypeFilter: null },
-      { id: config.pipelineIds.stage2, name: 'Stage 2 - MTA', stage: 2, buildTypeFilter: ' - MTA&Cancellation - ' },
+      {
+        id: config.pipelineIds.stage1,
+        name: "Stage 1",
+        stage: 1,
+        buildTypeFilter: null,
+      },
+      {
+        id: config.pipelineIds.stage2,
+        name: "Stage 2 - NB",
+        stage: 2,
+        buildTypeFilter: " - NB - ",
+      },
+      {
+        id: config.pipelineIds.stage3,
+        name: "Stage 3",
+        stage: 3,
+        buildTypeFilter: null,
+      },
+      {
+        id: config.pipelineIds.stage2,
+        name: "Stage 2 - MTA",
+        stage: 2,
+        buildTypeFilter: " - MTA&Cancellation - ",
+      },
     ];
 
     const buildResults = await Promise.all(
@@ -67,7 +87,7 @@ function FullPage() {
             stageNum: pipeline.stage,
             build: null,
             artifacts: [],
-            error: error instanceof Error ? error.message : 'Unknown error',
+            error: error instanceof Error ? error.message : "Unknown error",
           };
         }
       })
@@ -119,7 +139,7 @@ function FullPage() {
       </div>
 
       <div className="flex gap-2 border-b">
-        <button
+        {/* <button
           onClick={() => setActiveTab('tracking')}
           className={`pb-2 px-4 text-sm font-medium transition-colors ${
             activeTab === 'tracking'
@@ -128,18 +148,18 @@ function FullPage() {
           }`}
         >
           Tracking
-        </button>
+        </button> */}
         <button
-          onClick={() => setActiveTab('search')}
+          onClick={() => setActiveTab("search")}
           className={`pb-2 px-4 text-sm font-medium transition-colors ${
-            activeTab === 'search'
-              ? 'border-b-2 border-primary text-primary'
-              : 'text-muted-foreground hover:text-foreground'
+            activeTab === "search"
+              ? "border-b-2 border-primary text-primary"
+              : "text-muted-foreground hover:text-foreground"
           }`}
         >
           Search
         </button>
-        <button
+        {/* <button
           onClick={() => setActiveTab('history')}
           className={`pb-2 px-4 text-sm font-medium transition-colors ${
             activeTab === 'history'
@@ -148,24 +168,24 @@ function FullPage() {
           }`}
         >
           History
-        </button>
+        </button> */}
         <button
-          onClick={() => setActiveTab('settings')}
+          onClick={() => setActiveTab("settings")}
           className={`pb-2 px-4 text-sm font-medium transition-colors ${
-            activeTab === 'settings'
-              ? 'border-b-2 border-primary text-primary'
-              : 'text-muted-foreground hover:text-foreground'
+            activeTab === "settings"
+              ? "border-b-2 border-primary text-primary"
+              : "text-muted-foreground hover:text-foreground"
           }`}
         >
           Settings
         </button>
       </div>
 
-      {activeTab === 'tracking' ? (
+      {activeTab === "tracking" ? (
         <TrackingTab />
-      ) : activeTab === 'history' ? (
+      ) : activeTab === "history" ? (
         <TrackingHistory />
-      ) : activeTab === 'settings' ? (
+      ) : activeTab === "settings" ? (
         <SettingsTab />
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -181,7 +201,9 @@ function FullPage() {
               </div>
             ) : (
               <div className="flex items-center justify-center h-full text-muted-foreground">
-                <p>Enter search criteria and click "Search Builds" to see results</p>
+                <p>
+                  Enter search criteria and click "Search Builds" to see results
+                </p>
               </div>
             )}
           </div>

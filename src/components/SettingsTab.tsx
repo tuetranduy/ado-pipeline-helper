@@ -1,28 +1,36 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Label } from './ui/label';
-import { Input } from './ui/input';
-import { Button } from './ui/button';
-import { Alert, AlertDescription } from './ui/alert';
-import { PIPELINE_IDS } from '../lib/constants';
+import { useState, useEffect, useCallback, useRef } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import { Alert, AlertDescription } from "./ui/alert";
+import { PIPELINE_IDS } from "../lib/constants";
 
 export function SettingsTab() {
-  const [orgUrl, setOrgUrl] = useState('');
-  const [project, setProject] = useState('');
-  const [pat, setPat] = useState('');
-  const [pipelineStage1, setPipelineStage1] = useState<string>(PIPELINE_IDS.STAGE_1);
-  const [pipelineStage2, setPipelineStage2] = useState<string>(PIPELINE_IDS.STAGE_2);
-  const [pipelineStage3, setPipelineStage3] = useState<string>(PIPELINE_IDS.STAGE_3);
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
+  const [orgUrl, setOrgUrl] = useState("");
+  const [project, setProject] = useState("");
+  const [pat, setPat] = useState("");
+  const [pipelineStage1, setPipelineStage1] = useState<string>(
+    PIPELINE_IDS.STAGE_1
+  );
+  const [pipelineStage2, setPipelineStage2] = useState<string>(
+    PIPELINE_IDS.STAGE_2
+  );
+  const [pipelineStage3, setPipelineStage3] = useState<string>(
+    PIPELINE_IDS.STAGE_3
+  );
+  const [saveStatus, setSaveStatus] = useState<
+    "idle" | "saving" | "success" | "error"
+  >("idle");
 
   const timersRef = useRef<{ [key: string]: NodeJS.Timeout }>({});
 
   useEffect(() => {
     chrome.storage.local.get(
-      ['orgUrl', 'project', 'pat', 'pipelineIds'],
+      ["orgUrl", "project", "pat", "pipelineIds"],
       (result: any) => {
         if (chrome.runtime.lastError) {
-          console.error('Failed to load settings:', chrome.runtime.lastError);
+          console.error("Failed to load settings:", chrome.runtime.lastError);
           return;
         }
         if (result.orgUrl) setOrgUrl(result.orgUrl);
@@ -41,30 +49,37 @@ export function SettingsTab() {
     };
   }, []);
 
-  const handlePipelineChange = useCallback((stage: 'stage1' | 'stage2' | 'stage3', value: string) => {
-    const setters = { stage1: setPipelineStage1, stage2: setPipelineStage2, stage3: setPipelineStage3 };
-    setters[stage](value);
-  }, []);
+  const handlePipelineChange = useCallback(
+    (stage: "stage1" | "stage2" | "stage3", value: string) => {
+      const setters = {
+        stage1: setPipelineStage1,
+        stage2: setPipelineStage2,
+        stage3: setPipelineStage3,
+      };
+      setters[stage](value);
+    },
+    []
+  );
 
   const handleSave = async () => {
-    setSaveStatus('saving');
-    
+    setSaveStatus("saving");
+
     try {
       await chrome.storage.local.set({
         orgUrl,
         project,
         pat,
-        stage1PipelineId : pipelineStage1,
-        stage2PipelineId : pipelineStage2,
-        stage3PipelineId : pipelineStage3,
+        stage1PipelineId: pipelineStage1,
+        stage2PipelineId: pipelineStage2,
+        stage3PipelineId: pipelineStage3,
       });
 
-      setSaveStatus('success');
-      setTimeout(() => setSaveStatus('idle'), 3000);
+      setSaveStatus("success");
+      setTimeout(() => setSaveStatus("idle"), 3000);
     } catch (error) {
-      console.error('Failed to save settings:', error);
-      setSaveStatus('error');
-      setTimeout(() => setSaveStatus('idle'), 3000);
+      console.error("Failed to save settings:", error);
+      setSaveStatus("error");
+      setTimeout(() => setSaveStatus("idle"), 3000);
     }
   };
 
@@ -122,7 +137,7 @@ export function SettingsTab() {
               type="text"
               placeholder="747"
               value={pipelineStage1}
-              onChange={(e) => handlePipelineChange('stage1', e.target.value)}
+              onChange={(e) => handlePipelineChange("stage1", e.target.value)}
             />
           </div>
 
@@ -133,7 +148,7 @@ export function SettingsTab() {
               type="text"
               placeholder="712"
               value={pipelineStage2}
-              onChange={(e) => handlePipelineChange('stage2', e.target.value)}
+              onChange={(e) => handlePipelineChange("stage2", e.target.value)}
             />
           </div>
 
@@ -144,30 +159,32 @@ export function SettingsTab() {
               type="text"
               placeholder="1172"
               value={pipelineStage3}
-              onChange={(e) => handlePipelineChange('stage3', e.target.value)}
+              onChange={(e) => handlePipelineChange("stage3", e.target.value)}
             />
           </div>
         </CardContent>
       </Card>
 
-      {saveStatus === 'success' && (
+      {saveStatus === "success" && (
         <Alert className="bg-green-50 text-green-900 border-green-200">
           <AlertDescription>Settings saved successfully!</AlertDescription>
         </Alert>
       )}
 
-      {saveStatus === 'error' && (
+      {saveStatus === "error" && (
         <Alert variant="destructive">
-          <AlertDescription>Failed to save settings. Please try again.</AlertDescription>
+          <AlertDescription>
+            Failed to save settings. Please try again.
+          </AlertDescription>
         </Alert>
       )}
 
-      <Button 
-        onClick={handleSave} 
-        disabled={saveStatus === 'saving'}
+      <Button
+        onClick={handleSave}
+        disabled={saveStatus === "saving"}
         className="w-full"
       >
-        {saveStatus === 'saving' ? 'Saving...' : 'Save Settings'}
+        {saveStatus === "saving" ? "Saving..." : "Save Settings"}
       </Button>
     </div>
   );

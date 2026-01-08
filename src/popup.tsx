@@ -143,14 +143,14 @@ function Popup() {
           href="fullpage.html"
           target="_blank"
           className="text-sm text-primary hover:underline"
-          style={{color: "blue"}}
+          style={{ color: "blue" }}
         >
           Open Full Page View ↗
         </a>
       </div>
 
       <div className="flex gap-2 border-b">
-        <button
+        {/* <button
           onClick={() => setActiveTab("tracking")}
           className={`pb-2 px-4 text-sm font-medium transition-colors ${
             activeTab === "tracking"
@@ -159,7 +159,7 @@ function Popup() {
           }`}
         >
           Tracking
-        </button>
+        </button> */}
         <button
           onClick={() => setActiveTab("search")}
           className={`pb-2 px-4 text-sm font-medium transition-colors ${
@@ -170,7 +170,7 @@ function Popup() {
         >
           Search
         </button>
-        <button
+        {/* <button
           onClick={() => setActiveTab("history")}
           className={`pb-2 px-4 text-sm font-medium transition-colors ${
             activeTab === "history"
@@ -179,7 +179,7 @@ function Popup() {
           }`}
         >
           History
-        </button>
+        </button> */}
         <button
           onClick={() => setActiveTab("settings")}
           className={`pb-2 px-4 text-sm font-medium transition-colors ${

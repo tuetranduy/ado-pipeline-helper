@@ -1,14 +1,15 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './popup'
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./popup";
 
 try {
-  ReactDOM.createRoot(document.getElementById('root')!).render(
+  ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
       <App />
-    </React.StrictMode>,
-  )
+    </React.StrictMode>
+  );
 } catch (error) {
-  console.error('Failed to mount popup:', error);
-  document.body.innerHTML = '<div style="padding: 20px; color: red;">Failed to initialize extension. Please reload.</div>';
+  console.error("Failed to mount popup:", error);
+  document.body.innerHTML =
+    '<div style="padding: 20px; color: red;">Failed to initialize extension. Please reload.</div>';
 }
