@@ -50,17 +50,13 @@ export function SettingsTab() {
     setSaveStatus('saving');
     
     try {
-      const pipelineIds = {
-        stage1: pipelineStage1,
-        stage2: pipelineStage2,
-        stage3: pipelineStage3,
-      };
-
       await chrome.storage.local.set({
         orgUrl,
         project,
         pat,
-        pipelineIds,
+        stage1PipelineId : pipelineStage1,
+        stage2PipelineId : pipelineStage2,
+        stage3PipelineId : pipelineStage3,
       });
 
       setSaveStatus('success');

@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import { ConfigForm } from './components/ConfigForm';
-import { BuildResults } from './components/BuildResults';
-import { ErrorBoundary } from './components/ErrorBoundary';
-import { TrackingTab } from './components/TrackingTab';
-import { TrackingHistory } from './components/TrackingHistory';
-import { SettingsTab } from './components/SettingsTab';
-import { AdoClient } from './lib/ado-client';
-import { Build, Artifact } from './types/ado';
-import './index.css';
+import { useState } from "react";
+import { ConfigForm } from "./components/ConfigForm";
+import { BuildResults } from "./components/BuildResults";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { TrackingTab } from "./components/TrackingTab";
+import { TrackingHistory } from "./components/TrackingHistory";
+import { SettingsTab } from "./components/SettingsTab";
+import { AdoClient } from "./lib/ado-client";
+import { Build, Artifact } from "./types/ado";
+import "./index.css";
 
 interface StageResult {
   stage: string;
@@ -17,10 +17,10 @@ interface StageResult {
   loadingArtifacts?: boolean;
 }
 
-type TabType = 'search' | 'tracking' | 'history' | 'settings';
+type TabType = "search" | "tracking" | "history" | "settings";
 
 function Popup() {
-  const [activeTab, setActiveTab] = useState<TabType>('tracking');
+  const [activeTab, setActiveTab] = useState<TabType>("tracking");
   const [stages, setStages] = useState<StageResult[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -36,10 +36,30 @@ function Popup() {
 
     const client = new AdoClient();
     const pipelines = [
-      { id: config.pipelineIds.stage1, name: 'Stage 1', stage: 1, buildTypeFilter: null },
-      { id: config.pipelineIds.stage2, name: 'Stage 2 - NB', stage: 2, buildTypeFilter: ' - NB - ' },
-      { id: config.pipelineIds.stage3, name: 'Stage 3', stage: 3, buildTypeFilter: null },
-      { id: config.pipelineIds.stage2, name: 'Stage 2 - MTA', stage: 2, buildTypeFilter: ' - MTA&Cancellation - ' },
+      {
+        id: config.pipelineIds.stage1,
+        name: "Stage 1",
+        stage: 1,
+        buildTypeFilter: null,
+      },
+      {
+        id: config.pipelineIds.stage2,
+        name: "Stage 2 - NB",
+        stage: 2,
+        buildTypeFilter: " - NB - ",
+      },
+      {
+        id: config.pipelineIds.stage3,
+        name: "Stage 3",
+        stage: 3,
+        buildTypeFilter: null,
+      },
+      {
+        id: config.pipelineIds.stage2,
+        name: "Stage 2 - MTA",
+        stage: 2,
+        buildTypeFilter: " - MTA&Cancellation - ",
+      },
     ];
 
     const buildResults = await Promise.all(
@@ -67,7 +87,7 @@ function Popup() {
             stageNum: pipeline.stage,
             build: null,
             artifacts: [],
-            error: error instanceof Error ? error.message : 'Unknown error',
+            error: error instanceof Error ? error.message : "Unknown error",
           };
         }
       })
@@ -118,54 +138,65 @@ function Popup() {
         </p>
       </div>
 
+      <div className="pt-2 border-t">
+        <a
+          href="fullpage.html"
+          target="_blank"
+          className="text-sm text-primary hover:underline"
+          style={{color: "blue"}}
+        >
+          Open Full Page View ↗
+        </a>
+      </div>
+
       <div className="flex gap-2 border-b">
         <button
-          onClick={() => setActiveTab('tracking')}
+          onClick={() => setActiveTab("tracking")}
           className={`pb-2 px-4 text-sm font-medium transition-colors ${
-            activeTab === 'tracking'
-              ? 'border-b-2 border-primary text-primary'
-              : 'text-muted-foreground hover:text-foreground'
+            activeTab === "tracking"
+              ? "border-b-2 border-primary text-primary"
+              : "text-muted-foreground hover:text-foreground"
           }`}
         >
           Tracking
         </button>
         <button
-          onClick={() => setActiveTab('search')}
+          onClick={() => setActiveTab("search")}
           className={`pb-2 px-4 text-sm font-medium transition-colors ${
-            activeTab === 'search'
-              ? 'border-b-2 border-primary text-primary'
-              : 'text-muted-foreground hover:text-foreground'
+            activeTab === "search"
+              ? "border-b-2 border-primary text-primary"
+              : "text-muted-foreground hover:text-foreground"
           }`}
         >
           Search
         </button>
         <button
-          onClick={() => setActiveTab('history')}
+          onClick={() => setActiveTab("history")}
           className={`pb-2 px-4 text-sm font-medium transition-colors ${
-            activeTab === 'history'
-              ? 'border-b-2 border-primary text-primary'
-              : 'text-muted-foreground hover:text-foreground'
+            activeTab === "history"
+              ? "border-b-2 border-primary text-primary"
+              : "text-muted-foreground hover:text-foreground"
           }`}
         >
           History
         </button>
         <button
-          onClick={() => setActiveTab('settings')}
+          onClick={() => setActiveTab("settings")}
           className={`pb-2 px-4 text-sm font-medium transition-colors ${
-            activeTab === 'settings'
-              ? 'border-b-2 border-primary text-primary'
-              : 'text-muted-foreground hover:text-foreground'
+            activeTab === "settings"
+              ? "border-b-2 border-primary text-primary"
+              : "text-muted-foreground hover:text-foreground"
           }`}
         >
           Settings
         </button>
       </div>
 
-      {activeTab === 'tracking' ? (
+      {activeTab === "tracking" ? (
         <TrackingTab />
-      ) : activeTab === 'history' ? (
+      ) : activeTab === "history" ? (
         <TrackingHistory />
-      ) : activeTab === 'settings' ? (
+      ) : activeTab === "settings" ? (
         <SettingsTab />
       ) : (
         <>
@@ -177,16 +208,6 @@ function Popup() {
               <BuildResults stages={stages} loading={loading} />
             </div>
           )}
-
-          <div className="pt-2 border-t">
-            <a
-              href="fullpage.html"
-              target="_blank"
-              className="text-sm text-primary hover:underline"
-            >
-              Open Full Page View
-            </a>
-          </div>
         </>
       )}
     </div>
