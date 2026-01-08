@@ -132,7 +132,7 @@ function Popup() {
   return (
     <div className="w-[400px] min-h-[600px] p-4 space-y-4">
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold">ADO Build Tracker</h1>
+        <h1 className="text-2xl font-bold">PremFina Build Tracker</h1>
         <p className="text-sm text-muted-foreground">
           Track builds and search artifacts
         </p>
@@ -162,11 +162,10 @@ function Popup() {
         </button> */}
         <button
           onClick={() => setActiveTab("search")}
-          className={`pb-2 px-4 text-sm font-medium transition-colors ${
-            activeTab === "search"
+          className={`pb-2 px-4 text-sm font-medium transition-colors ${activeTab === "search"
               ? "border-b-2 border-primary text-primary"
               : "text-muted-foreground hover:text-foreground"
-          }`}
+            }`}
         >
           Search
         </button>
@@ -182,11 +181,10 @@ function Popup() {
         </button> */}
         <button
           onClick={() => setActiveTab("settings")}
-          className={`pb-2 px-4 text-sm font-medium transition-colors ${
-            activeTab === "settings"
+          className={`pb-2 px-4 text-sm font-medium transition-colors ${activeTab === "settings"
               ? "border-b-2 border-primary text-primary"
               : "text-muted-foreground hover:text-foreground"
-          }`}
+            }`}
         >
           Settings
         </button>
@@ -199,7 +197,7 @@ function Popup() {
       ) : activeTab === "settings" ? (
         <SettingsTab />
       ) : (
-        <>
+        <div className="space-y-6">
           <ConfigForm onSubmit={handleSearch} loading={loading} />
 
           {stages.length > 0 && (
@@ -208,7 +206,7 @@ function Popup() {
               <BuildResults stages={stages} loading={loading} />
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );

@@ -13,12 +13,18 @@ interface StageResult {
   loadingArtifacts?: boolean;
 }
 
-interface BuildResultsProps {
+interface BuildColumn {
+  buildId: string;
   stages: StageResult[];
+}
+
+interface BuildResultsProps {
+  stages?: StageResult[];
+  columns?: BuildColumn[];
   loading: boolean;
 }
 
-export function BuildResults({ stages, loading }: BuildResultsProps) {
+export function BuildResults({ stages, columns, loading }: BuildResultsProps) {
   const getStageColor = (stageName: string) => {
     if (stageName.includes('Stage 1')) return 'border-l-4 border-l-blue-500';
     if (stageName.includes('Stage 2 - NB')) return 'border-l-4 border-l-green-500';
@@ -51,7 +57,101 @@ export function BuildResults({ stages, loading }: BuildResultsProps) {
     );
   }
 
-  if (stages.length === 0) {
+  // Multi-column layout
+  if (columns && columns.length > 0) {
+    const stageNames = columns[0]?.stages.map(s => s.stage) || [];
+    
+    return (
+      <div className="space-y-4">
+        {stageNames.map((_, stageIndex) => (
+          <div key={stageIndex} className="grid gap-3" style={{ gridTemplateColumns: `repeat(${columns.length}, minmax(0, 1fr))` }}>
+            {columns.map((column, colIndex) => {
+              const stage = column.stages[stageIndex];
+              return (
+                <Card key={colIndex} className={getStageColor(stage.stage)}>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base font-semibold">{stage.stage}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {stage.error ? (
+                      <Alert variant="destructive">
+                        <AlertDescription>{stage.error}</AlertDescription>
+                      </Alert>
+                    ) : stage.build ? (
+                      <>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-medium">Build Number:</span>
+                            <a
+                              href={stage.build.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                            >
+                              {stage.build.buildNumber}
+                            </a>
+                          </div>
+                          <div className="flex items-center gap-3 flex-wrap">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-medium text-muted-foreground">Status:</span>
+                              <Badge className={getStatusColor(stage.build.status)}>{stage.build.status}</Badge>
+                            </div>
+                            {stage.build.result && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-medium text-muted-foreground">Result:</span>
+                                <Badge className={getResultColor(stage.build.result)}>{stage.build.result}</Badge>
+                              </div>
+                            )}
+                          </div>
+                          {stage.build.name && (
+                            <div className="text-sm text-muted-foreground">
+                              {stage.build.name}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="space-y-2 pt-2 border-t">
+                          <span className="text-sm font-medium">Artifacts:</span>
+                          {stage.loadingArtifacts ? (
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              <span>Loading artifacts...</span>
+                            </div>
+                          ) : stage.artifacts.length > 0 ? (
+                            <ul className="space-y-1">
+                              {stage.artifacts.map((artifact) => (
+                                <li key={artifact.id}>
+                                  <a
+                                    href={artifact.resource.downloadUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                                  >
+                                    📦 {artifact.name}
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">No artifacts</p>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">No builds found</p>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // Single column layout
+  if (!stages || stages.length === 0) {
     return null;
   }
 

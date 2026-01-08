@@ -77,11 +77,11 @@ export function ConfigForm({ onSubmit, loading }: ConfigFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="buildId">Build Number</Label>
+        <Label htmlFor="buildId">Build Number(s)</Label>
         <Input
           id="buildId"
           type="text"
-          placeholder="e.g., 86951"
+          placeholder="e.g., 86951 or 86951, 86952, 86953"
           value={buildId}
           onChange={(e) => {
             const value = e.target.value;
@@ -90,6 +90,9 @@ export function ConfigForm({ onSubmit, loading }: ConfigFormProps) {
           }}
           disabled={loading}
         />
+        <p className="text-xs text-muted-foreground">
+          Enter one or more build numbers separated by commas
+        </p>
       </div>
 
       <Button type="submit" disabled={!isValid || loading} className="w-full">

@@ -17,11 +17,17 @@ interface StageResult {
   loadingArtifacts?: boolean;
 }
 
+interface BuildColumn {
+  buildId: string;
+  stages: StageResult[];
+}
+
 type TabType = "search" | "tracking" | "history" | "settings";
 
 function FullPage() {
   const [activeTab, setActiveTab] = useState<TabType>("search");
   const [stages, setStages] = useState<StageResult[]>([]);
+  const [buildColumns, setBuildColumns] = useState<BuildColumn[]>([]);
   const [loading, setLoading] = useState(false);
 
   const handleSearch = async (config: {
@@ -33,6 +39,7 @@ function FullPage() {
   }) => {
     setLoading(true);
     setStages([]);
+    setBuildColumns([]);
 
     const client = new AdoClient();
     const pipelines = [
@@ -62,77 +69,167 @@ function FullPage() {
       },
     ];
 
-    const buildResults = await Promise.all(
-      pipelines.map(async (pipeline) => {
-        try {
-          const build = await client.searchBuildsByName(
-            config.orgUrl,
-            config.project,
-            pipeline.id,
-            config.buildId,
-            config.pat,
-            pipeline.buildTypeFilter
-          );
+    // Parse build IDs (comma-separated)
+    const buildIds = config.buildId
+      .split(',')
+      .map(id => id.trim())
+      .filter(id => id.length > 0);
 
-          return {
-            stage: pipeline.name,
-            stageNum: pipeline.stage,
-            build,
-            artifacts: [],
-            loadingArtifacts: build !== null,
-          };
-        } catch (error) {
-          return {
-            stage: pipeline.name,
-            stageNum: pipeline.stage,
-            build: null,
-            artifacts: [],
-            error: error instanceof Error ? error.message : "Unknown error",
-          };
-        }
-      })
-    );
-
-    const expandedResults = buildResults;
-
-    setStages(expandedResults);
-    setLoading(false);
-
-    // Fetch artifacts for found builds
-    const artifactResults = await Promise.all(
-      expandedResults.map(async (result) => {
-        if (result.build) {
+    if (buildIds.length === 1) {
+      // Single build - use original layout
+      const buildResults = await Promise.all(
+        pipelines.map(async (pipeline) => {
           try {
-            const artifacts = await client.getArtifacts(
+            const build = await client.searchBuildsByName(
               config.orgUrl,
               config.project,
-              result.build.id,
-              config.pat
+              pipeline.id,
+              buildIds[0],
+              config.pat,
+              pipeline.buildTypeFilter
             );
+
             return {
-              ...result,
-              artifacts,
-              loadingArtifacts: false,
+              stage: pipeline.name,
+              stageNum: pipeline.stage,
+              build,
+              artifacts: [],
+              loadingArtifacts: build !== null,
             };
           } catch (error) {
             return {
-              ...result,
+              stage: pipeline.name,
+              stageNum: pipeline.stage,
+              build: null,
               artifacts: [],
-              loadingArtifacts: false,
+              error: error instanceof Error ? error.message : "Unknown error",
             };
           }
-        }
-        return result;
-      })
-    );
+        })
+      );
 
-    setStages(artifactResults);
+      setStages(buildResults);
+      setLoading(false);
+
+      // Fetch artifacts for found builds
+      const artifactResults = await Promise.all(
+        buildResults.map(async (result) => {
+          if (result.build) {
+            try {
+              const artifacts = await client.getArtifacts(
+                config.orgUrl,
+                config.project,
+                result.build.id,
+                config.pat
+              );
+              return {
+                ...result,
+                artifacts,
+                loadingArtifacts: false,
+              };
+            } catch (error) {
+              return {
+                ...result,
+                artifacts: [],
+                loadingArtifacts: false,
+              };
+            }
+          }
+          return result;
+        })
+      );
+
+      setStages(artifactResults);
+    } else {
+      // Multiple builds - use column layout
+      const columnsData = await Promise.all(
+        buildIds.map(async (buildId) => {
+          const buildResults = await Promise.all(
+            pipelines.map(async (pipeline) => {
+              try {
+                const build = await client.searchBuildsByName(
+                  config.orgUrl,
+                  config.project,
+                  pipeline.id,
+                  buildId,
+                  config.pat,
+                  pipeline.buildTypeFilter
+                );
+
+                return {
+                  stage: pipeline.name,
+                  stageNum: pipeline.stage,
+                  build,
+                  artifacts: [],
+                  loadingArtifacts: build !== null,
+                };
+              } catch (error) {
+                return {
+                  stage: pipeline.name,
+                  stageNum: pipeline.stage,
+                  build: null,
+                  artifacts: [],
+                  error: error instanceof Error ? error.message : "Unknown error",
+                };
+              }
+            })
+          );
+
+          return {
+            buildId,
+            stages: buildResults,
+          };
+        })
+      );
+
+      setBuildColumns(columnsData);
+      setLoading(false);
+
+      // Fetch artifacts for all columns
+      const updatedColumns = await Promise.all(
+        columnsData.map(async (column) => {
+          const artifactResults = await Promise.all(
+            column.stages.map(async (result) => {
+              if (result.build) {
+                try {
+                  const artifacts = await client.getArtifacts(
+                    config.orgUrl,
+                    config.project,
+                    result.build.id,
+                    config.pat
+                  );
+                  return {
+                    ...result,
+                    artifacts,
+                    loadingArtifacts: false,
+                  };
+                } catch (error) {
+                  return {
+                    ...result,
+                    artifacts: [],
+                    loadingArtifacts: false,
+                  };
+                }
+              }
+              return result;
+            })
+          );
+
+          return {
+            ...column,
+            stages: artifactResults,
+          };
+        })
+      );
+
+      setBuildColumns(updatedColumns);
+    }
   };
 
   return (
     <div className="container max-w-4xl mx-auto p-8 space-y-6">
       <div className="space-y-3">
-        <h1 className="text-3xl font-bold">ADO Build Tracker</h1>
+        <h1 className="text-3xl font-bold">PremFina Build Tracker</h1>
         <p className="text-muted-foreground">
           Track builds and search artifacts
         </p>
@@ -151,11 +248,10 @@ function FullPage() {
         </button> */}
         <button
           onClick={() => setActiveTab("search")}
-          className={`pb-2 px-4 text-sm font-medium transition-colors ${
-            activeTab === "search"
+          className={`pb-2 px-4 text-sm font-medium transition-colors ${activeTab === "search"
               ? "border-b-2 border-primary text-primary"
               : "text-muted-foreground hover:text-foreground"
-          }`}
+            }`}
         >
           Search
         </button>
@@ -171,11 +267,10 @@ function FullPage() {
         </button> */}
         <button
           onClick={() => setActiveTab("settings")}
-          className={`pb-2 px-4 text-sm font-medium transition-colors ${
-            activeTab === "settings"
+          className={`pb-2 px-4 text-sm font-medium transition-colors ${activeTab === "settings"
               ? "border-b-2 border-primary text-primary"
               : "text-muted-foreground hover:text-foreground"
-          }`}
+            }`}
         >
           Settings
         </button>
@@ -188,25 +283,28 @@ function FullPage() {
       ) : activeTab === "settings" ? (
         <SettingsTab />
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1">
-            <ConfigForm onSubmit={handleSearch} loading={loading} />
-          </div>
+        <div className="space-y-6">
+          <ConfigForm onSubmit={handleSearch} loading={loading} />
 
-          <div className="lg:col-span-2">
-            {stages.length > 0 ? (
-              <div className="space-y-3">
-                <h2 className="text-xl font-semibold">Results</h2>
+          {stages.length > 0 || buildColumns.length > 0 ? (
+            <div className="space-y-3">
+              <h2 className="text-xl font-semibold">Results</h2>
+              {buildColumns.length > 0 ? (
+                <div className="space-y-4">
+                  <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${buildColumns.length}, minmax(0, 1fr))` }}>
+                    {buildColumns.map((column, idx) => (
+                      <div key={idx} className="text-center">
+                        <h3 className="text-sm font-semibold border-b pb-2">Build: {column.buildId}</h3>
+                      </div>
+                    ))}
+                  </div>
+                  <BuildResults columns={buildColumns} loading={false} />
+                </div>
+              ) : (
                 <BuildResults stages={stages} loading={loading} />
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-full text-muted-foreground">
-                <p>
-                  Enter search criteria and click "Search Builds" to see results
-                </p>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          ) : null}
         </div>
       )}
     </div>

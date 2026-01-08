@@ -5,7 +5,7 @@
   "description": "Track Azure DevOps pipeline builds and artifacts across multiple stages",
   "action": {
     "default_popup": "popup.html",
-    "default_title": "ADO Build Tracker"
+    "default_title": "PremFina Build Tracker"
   },
   "permissions": [
     "storage",

@@ -164,7 +164,7 @@ Chrome extension that accepts a build ID, searches all 3 pipelines for builds wi
   - File: `src/components/ErrorBoundary.tsx`
   - Action: React error boundary component that catches errors and displays fallback UI with error message
   - File: `popup.html`
-  - Action: HTML entry point importing popup.tsx, viewport meta tag, title "ADO Build Tracker"
+  - Action: HTML entry point importing popup.tsx, viewport meta tag, title "PremFina Build Tracker"
   - Notes: 400px x 600px viewport, compact layout
 
 - [x] Task 12: Create full-page view
