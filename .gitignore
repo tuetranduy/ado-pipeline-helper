@@ -5,5 +5,3 @@ dist
 .vscode
 .idea
 *.local
-_bmad
-_bmad-output
