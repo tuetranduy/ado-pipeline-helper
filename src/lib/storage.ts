@@ -4,6 +4,9 @@ export interface TrackedBuild {
   currentStage: 'stage1' | 'stage2_nb' | 'stage3' | 'stage2_mta' | 'done';
   stage1BuildId?: number;
   stage1BuildUrl?: string;
+  stage1BuildName?: string;
+  stage1BuildStatus?: string;
+  stage1BuildResult?: string;
   stage2NbBuildId?: number;
   stage2NbBuildUrl?: string;
   stage3BuildId?: number;

@@ -188,34 +188,36 @@ async function handleCheckStage1(buildNumber: string): Promise<void> {
       null
     );
 
+    if (stage1Builds) {
+      build.stage1BuildName = stage1Builds.buildNumber;
+      build.stage1BuildStatus = stage1Builds.status;
+      build.stage1BuildResult = stage1Builds.result;
+      await saveTrackedBuild(buildNumber, build);
+    }
+
     if (stage1Builds && stage1Builds.status === 'completed') {
-      if (stage1Builds.result === 'succeeded') {
-        build.status = 'waiting_stage2_nb';
-        build.currentStage = 'stage2_nb';
-        build.stage1BuildId = stage1Builds.id;
-        build.stage1BuildUrl = stage1Builds.url;
-        build.stage1CompletedAt = Date.now();
-        await saveTrackedBuild(buildNumber, build);
+      build.status = 'waiting_stage2_nb';
+      build.currentStage = 'stage2_nb';
+      build.stage1BuildId = stage1Builds.id;
+      build.stage1BuildUrl = stage1Builds.url;
+      build.stage1BuildName = stage1Builds.buildNumber;
+      build.stage1BuildStatus = stage1Builds.status;
+      build.stage1BuildResult = stage1Builds.result;
+      build.stage1CompletedAt = Date.now();
+      await saveTrackedBuild(buildNumber, build);
 
-        chrome.alarms.clear(createAlarmName(ALARM_TYPES.CHECK_STAGE1, buildNumber));
+      chrome.alarms.clear(createAlarmName(ALARM_TYPES.CHECK_STAGE1, buildNumber));
 
-        const trackerConfig = await getTrackerConfig();
-        const delayEnd = build.stage1CompletedAt + trackerConfig.delayAfterStage1Minutes * 60 * 1000;
-        chrome.alarms.create(createAlarmName(ALARM_TYPES.START_POLLING, buildNumber), { when: delayEnd });
+      const trackerConfig = await getTrackerConfig();
+      const delayEnd = build.stage1CompletedAt + trackerConfig.delayAfterStage1Minutes * 60 * 1000;
+      chrome.alarms.create(createAlarmName(ALARM_TYPES.START_POLLING, buildNumber), { when: delayEnd });
 
-        await chrome.notifications.create(`stage1-complete-${buildNumber}`, {
-          type: 'basic',
-          iconUrl: NOTIFICATION_ICON,
-          title: 'Stage 1 Complete',
-          message: `Build ${buildNumber} Stage 1 completed. Will start monitoring Stage 2 - NB in 20 minutes.`,
-        });
-      } else if (stage1Builds.result === 'failed') {
-        build.status = 'failed';
-        await saveTrackedBuild(buildNumber, build);
-        await addToHistory(build);
-        await removeTrackedBuild(buildNumber);
-        chrome.alarms.clear(createAlarmName(ALARM_TYPES.CHECK_STAGE1, buildNumber));
-      }
+      await chrome.notifications.create(`stage1-complete-${buildNumber}`, {
+        type: 'basic',
+        iconUrl: NOTIFICATION_ICON,
+        title: 'Stage 1 Complete',
+        message: `Build ${buildNumber} Stage 1 completed. Will start monitoring Stage 2 - NB in 20 minutes.`,
+      });
     }
   } catch (error) {
     console.error(`[ADO Tracker] Error checking Stage 1 for build ${buildNumber}:`, error);

@@ -116,6 +116,14 @@ export function TrackingTab() {
     return 'Done';
   };
 
+  const getNextStage = (currentStage: string) => {
+    if (currentStage === 'stage1') return 'Stage 2 - NB';
+    if (currentStage === 'stage2_nb') return 'Stage 3';
+    if (currentStage === 'stage3') return 'Stage 2 - MTA';
+    if (currentStage === 'stage2_mta') return 'Complete';
+    return 'N/A';
+  };
+
   return (
     <div className="space-y-4">
       <Card>
@@ -180,20 +188,32 @@ export function TrackingTab() {
                 <CardContent className="py-3 px-4">
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div>
-                      <span className="text-muted-foreground">Build Name:</span>
-                      <p className="font-medium">Build {build.buildNumber}</p>
-                    </div>
-                    <div>
                       <span className="text-muted-foreground">Build Number:</span>
                       <p className="font-medium">{build.buildNumber}</p>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Status:</span>
+                      <span className="text-muted-foreground">Time Triggered:</span>
+                      <p className="font-medium">{new Date(build.startedAt).toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Stage 1 Build Name:</span>
+                      <p className="font-medium">{build.stage1BuildName || 'Searching...'}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Stage 1 Status:</span>
+                      <p className="font-medium">{build.stage1BuildStatus || 'Pending'}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Stage 1 Result:</span>
+                      <p className="font-medium">{build.stage1BuildResult || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Current Stage:</span>
                       <Badge className={getStatusColor(build.status)}>{getStageLabel(build.currentStage)}</Badge>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Time Triggered:</span>
-                      <p className="font-medium">{new Date(build.startedAt).toLocaleString()}</p>
+                      <span className="text-muted-foreground">Next Stage:</span>
+                      <p className="font-medium">{getNextStage(build.currentStage)}</p>
                     </div>
                   </div>
                 </CardContent>
