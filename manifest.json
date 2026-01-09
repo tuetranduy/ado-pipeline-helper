@@ -21,8 +21,9 @@
     "https://*.visualstudio.com/*"
   ],
   "icons": {
-    "16": "public/icon-16.svg",
-    "48": "public/icon-48.svg",
-    "128": "public/icon-128.svg"
+    "16": "public/icon16.png",
+    "32": "public/icon32.png",
+    "48": "public/icon48.png",
+    "128": "public/icon128.png"
   }
 }

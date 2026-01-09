@@ -145,7 +145,7 @@ function Popup() {
           className="text-sm text-primary hover:underline"
           style={{ color: "blue" }}
         >
-          Open Full Page View ↗
+          Open Full Page View for multiple search ↗
         </a>
       </div>
 
@@ -163,8 +163,8 @@ function Popup() {
         <button
           onClick={() => setActiveTab("search")}
           className={`pb-2 px-4 text-sm font-medium transition-colors ${activeTab === "search"
-              ? "border-b-2 border-primary text-primary"
-              : "text-muted-foreground hover:text-foreground"
+            ? "border-b-2 border-primary text-primary"
+            : "text-muted-foreground hover:text-foreground"
             }`}
         >
           Search
@@ -182,8 +182,8 @@ function Popup() {
         <button
           onClick={() => setActiveTab("settings")}
           className={`pb-2 px-4 text-sm font-medium transition-colors ${activeTab === "settings"
-              ? "border-b-2 border-primary text-primary"
-              : "text-muted-foreground hover:text-foreground"
+            ? "border-b-2 border-primary text-primary"
+            : "text-muted-foreground hover:text-foreground"
             }`}
         >
           Settings

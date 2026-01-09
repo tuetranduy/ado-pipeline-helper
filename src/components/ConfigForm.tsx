@@ -91,8 +91,11 @@ export function ConfigForm({ onSubmit, loading }: ConfigFormProps) {
           disabled={loading}
         />
         <p className="text-xs text-muted-foreground">
-          Enter one or more build numbers separated by commas
+          Enter one or more build numbers separated by commas (e.g., 86951, 86952).
         </p>
+        <i className="text-xs text-muted-foreground">
+          (Full Page view only)
+        </i>
       </div>
 
       <Button type="submit" disabled={!isValid || loading} className="w-full">

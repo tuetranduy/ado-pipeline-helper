@@ -19,7 +19,7 @@ import {
 const adoClient = new AdoClient();
 
 // Minimal 16x16 blue PNG icon as base64 (Chrome notifications require PNG, not SVG)
-const NOTIFICATION_ICON = chrome.runtime.getURL('../noti.png');
+const NOTIFICATION_ICON = chrome.runtime.getURL('../icon16.png');
 
 chrome.runtime.onInstalled.addListener(async () => {
   const permission = await chrome.notifications.getPermissionLevel();
@@ -394,16 +394,16 @@ async function handlePollMta(buildNumber: string): Promise<void> {
 
 async function handleClearAllTracking(): Promise<void> {
   const builds = await getTrackedBuilds();
-  
+
   for (const buildNumber of builds.keys()) {
     chrome.alarms.clear(createAlarmName(ALARM_TYPES.CHECK_STAGE1, buildNumber));
     chrome.alarms.clear(createAlarmName(ALARM_TYPES.START_POLLING, buildNumber));
     chrome.alarms.clear(createAlarmName(ALARM_TYPES.POLL_STAGES, buildNumber));
     chrome.alarms.clear(createAlarmName('wait-mta', buildNumber));
     chrome.alarms.clear(createAlarmName('poll-mta', buildNumber));
-    
+
     await removeTrackedBuild(buildNumber);
   }
-  
+
   console.log('[ADO Tracker] All tracking cleared');
 }
