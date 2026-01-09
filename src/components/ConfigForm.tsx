@@ -20,7 +20,7 @@ export function ConfigForm({ onSubmit, loading }: ConfigFormProps) {
 
   useEffect(() => {
     chrome.storage.local.get(
-      ['orgUrl', 'project', 'pat', 'buildId', 'pipelineIds'],
+      ['orgUrl', 'project', 'pat', 'buildId', 'stage1PipelineId', 'stage2PipelineId', 'stage3PipelineId'],
       (result: any) => {
         if (chrome.runtime.lastError) {
           console.error('Failed to load settings:', chrome.runtime.lastError);
@@ -30,7 +30,13 @@ export function ConfigForm({ onSubmit, loading }: ConfigFormProps) {
         if (result.project) setProject(result.project);
         if (result.pat) setPat(result.pat);
         if (result.buildId) setBuildId(result.buildId);
-        if (result.pipelineIds) setPipelineIds(result.pipelineIds);
+        if (result.stage1PipelineId || result.stage2PipelineId || result.stage3PipelineId) {
+          setPipelineIds({
+            stage1: result.stage1PipelineId || '',
+            stage2: result.stage2PipelineId || '',
+            stage3: result.stage3PipelineId || '',
+          });
+        }
       }
     );
 
